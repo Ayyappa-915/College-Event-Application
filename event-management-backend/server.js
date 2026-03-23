@@ -15,92 +15,96 @@ const eventRoutes = require("./routes/eventRoutes");
 
 const app = express();
 
-/* Connect MongoDB */
+/* =========================
+CONNECT DATABASE
+========================= */
 connectDB();
 
-/* CORS FIX */
+/* =========================
+CORS CONFIG (FIXED)
+========================= */
 app.use(cors({
-  origin: "*",
-  methods: ["GET","POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type","Authorization"]
+origin: "https://college-event-application-313p.vercel.app",
+methods: ["GET", "POST", "PUT", "DELETE"],
+credentials: true
 }));
 
-/* Middleware */
-app.use(express.json());
-
-/* Handle Preflight Requests */
 app.options("*", cors());
 
-/* Middleware */
+/* =========================
+MIDDLEWARE
+========================= */
 app.use(express.json());
 
-/*
-Create Default Admin
-Runs when server starts
-*/
+/* =========================
+CREATE DEFAULT ADMIN
+========================= */
 const createDefaultAdmin = async () => {
-  try {
+try {
+const adminExists = await User.findOne({ role: "admin" });
 
-    const adminExists = await User.findOne({ role: "admin" });
+```
+if (!adminExists) {
+  const hashedPassword = await bcrypt.hash("admin123", 10);
 
-    if (!adminExists) {
+  const admin = new User({
+    name: "Admin",
+    rollNumber: "admin",
+    email: "admin@college.com",
+    department: "CSE",
+    password: hashedPassword,
+    role: "admin"
+  });
 
-      const hashedPassword = await bcrypt.hash("admin123", 10);
+  await admin.save();
 
-      const admin = new User({
-        name: "Admin",
-        rollNumber: "admin",
-        email: "admin@college.com",
-        department: "CSE",
-        password: hashedPassword,
-        role: "admin"
-      });
+  console.log("✅ Default Admin Created");
+  console.log("Login with:");
+  console.log("Roll Number: admin");
+  console.log("Password: admin123");
+} else {
+  console.log("ℹ️ Admin already exists");
+}
+```
 
-      await admin.save();
-
-      console.log("✅ Default Admin Created");
-      console.log("Login with:");
-      console.log("Roll Number: admin");
-      console.log("Password: admin123");
-
-    } else {
-      console.log("ℹ️ Admin already exists");
-    }
-
-  } catch (error) {
-    console.error("❌ Error creating admin:", error);
-  }
+} catch (error) {
+console.error("❌ Error creating admin:", error);
+}
 };
 
-/* Routes */
+/* =========================
+ROUTES
+========================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/organizer", organizerRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/events", eventRoutes);
 
-/* Default Route */
+/* =========================
+ROOT ROUTE
+========================= */
 app.get("/", (req, res) => {
-  res.send("College Event Management API Running 🚀");
+res.send("College Event Management API Running 🚀");
 });
 
-/* Global Error Handler */
+/* =========================
+GLOBAL ERROR HANDLER
+========================= */
 app.use((err, req, res, next) => {
-  console.error(err);
+console.error("🔥 Server Error:", err);
 
-  res.status(500).json({
-    message: "Internal Server Error"
-  });
+res.status(500).json({
+message: "Internal Server Error"
+});
 });
 
-/* Start Server */
+/* =========================
+START SERVER
+========================= */
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
-
-  console.log(`🚀 Server running on port ${PORT}`);
-
-  await createDefaultAdmin();
-
+console.log(`🚀 Server running on port ${PORT}`);
+await createDefaultAdmin();
 });
-
