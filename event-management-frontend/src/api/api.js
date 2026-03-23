@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://college-event-management-system-v0xa.onrender.com/api",
+  baseURL: "https://college-event-application.onrender.com/api",
 });
 
 /* Attach JWT token automatically */
