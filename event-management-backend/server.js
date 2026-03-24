@@ -43,7 +43,6 @@ const createDefaultAdmin = async () => {
 try {
 const adminExists = await User.findOne({ role: "admin" });
 
-```
 if (!adminExists) {
   const hashedPassword = await bcrypt.hash("admin123", 10);
 
@@ -65,7 +64,6 @@ if (!adminExists) {
 } else {
   console.log("ℹ️ Admin already exists");
 }
-```
 
 } catch (error) {
 console.error("❌ Error creating admin:", error);
